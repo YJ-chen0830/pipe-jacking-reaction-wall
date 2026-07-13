@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>頂進反力與反力牆設計 | Pipe Jacking Reaction Force & Reaction Wall Design</title>
+<script src="https://yj-chen0830.github.io/jrh-core/jrh-core.js?v=3" defer></script>
+<style>
+  :root{--navy:#0b1f3a;--navy2:#13284a;--gold:#c9a14a;--gold2:#e0bf6e;--bg:#f5f3ee;--ink:#1c2530;--line:#d8d2c2;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Noto Sans TC","Segoe UI",sans-serif;background:var(--bg);color:var(--ink);}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#f5f3ee;padding:28px 32px;}
+  header h1{margin:0;font-size:22px;}
+  header span{color:var(--gold2);font-size:13px;display:block;margin-top:4px;}
+  main{max-width:1060px;margin:0 auto;padding:28px 20px 60px;}
+  .tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .tab{padding:9px 20px;border:2px solid var(--navy);border-radius:7px;cursor:pointer;font-weight:600;font-size:14px;background:#fff;color:var(--navy);}
+  .tab.active{background:var(--navy);color:#fff;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:24px;}
+  @media(max-width:820px){.grid{grid-template-columns:1fr;}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 24px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  .card h2{font-size:14.5px;margin:0 0 18px;color:var(--navy);font-weight:700;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--gold);padding-bottom:10px;}
+  label{display:block;font-size:12px;color:#666;margin:10px 0 4px;font-weight:500;}
+  input,select{width:100%;padding:8px 11px;border:1.5px solid var(--line);border-radius:7px;font-size:13.5px;background:#fafaf8;}
+  input:focus,select:focus{outline:none;border-color:var(--gold);}
+  .sec{font-size:12px;font-weight:700;color:var(--navy);margin:16px 0 6px;border-left:4px solid var(--gold);padding-left:9px;letter-spacing:.04em;text-transform:uppercase;}
+  .note{font-size:11.5px;color:#666;margin-top:12px;line-height:1.75;background:#f9f7f2;border-radius:6px;padding:9px 12px;}
+  .field-note{font-size:11px;color:#8a7c62;line-height:1.7;margin-top:5px;}
+  .formula-hint{font-size:11px;color:#8a7c62;margin-top:4px;}
+  button.calc-btn{margin-top:16px;width:100%;padding:12px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;}
+  button.calc-btn:hover{background:var(--navy2);}
+  button.pro-btn{margin-top:12px;width:100%;padding:12px;border:none;border-radius:8px;background:var(--gold);color:var(--navy);font-size:14.5px;font-weight:700;cursor:pointer;}
+  button.pro-btn:hover{filter:brightness(1.08);}
+  table{width:100%;border-collapse:collapse;margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  th{background:var(--navy);color:#f5f3ee;font-weight:600;font-size:12px;padding:9px 10px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  td{padding:9px 10px;font-size:13px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:#f9f7f3;}
+  td.value{text-align:right;font-weight:700;white-space:nowrap;}
+  td.proc-cell{width:220px;}
+  .ok{color:#1a7d3a;font-weight:700;}
+  .ng{color:#c0392b;font-weight:700;}
+  details.proc{border:1px solid var(--line);border-radius:8px;background:#fafaf8;overflow:hidden;}
+  details.proc summary{cursor:pointer;padding:8px 10px;font-weight:700;font-size:12px;color:var(--navy);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;}
+  details.proc summary::before{content:"▶";font-size:10px;transition:transform .2s;}
+  details[open].proc summary::before{transform:rotate(90deg);}
+  details.proc pre{margin:0;padding:10px 12px 12px;font-family:"Courier New",monospace;font-size:11px;line-height:1.8;white-space:pre-wrap;color:#2c3e50;border-top:1px solid var(--line);}
+  .details-note{margin-top:14px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .proj-section{background:#fff;border:1px solid var(--gold);border-radius:10px;padding:18px 22px;margin-bottom:20px;}
+  .proj-section h3{margin:0 0 12px;color:var(--navy);font-size:14px;font-weight:700;}
+  .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:600px){.proj-grid{grid-template-columns:1fr;}}
+  .mob-tabs{display:none;}
+  @media screen and (max-width:767px){
+    .mob-tabs{display:flex;background:var(--bg);border-bottom:2px solid var(--line);margin:0 -20px 0;padding:0 20px;}
+    .mob-tab{flex:1;padding:11px 4px;text-align:center;font-size:13.5px;font-weight:700;color:#888;cursor:pointer;background:transparent;border:none;border-bottom:3px solid transparent;}
+    .mob-tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+    .grid{display:block;}
+    .grid>.card{display:none;}
+    .grid>.card.mob-active{display:block;}
+    td.proc-cell{width:auto;}
+  }
+  @media print{
+    header,.tabs,.no-print{display:none!important;}
+    body{background:#fff;margin:0;font-size:9pt;line-height:1.5;color:#111;}
+    main{padding:0;max-width:100%!important;}
+    .panel{display:block!important;}
+    .grid{grid-template-columns:1fr!important;gap:10pt!important;}
+    .card{box-shadow:none!important;border:1px solid #ccc!important;border-radius:4pt!important;padding:10pt 12pt!important;break-inside:avoid;}
+    .card h2{font-size:10.5pt!important;padding-bottom:6pt!important;margin-bottom:9pt!important;}
+    label{font-size:8pt!important;margin:6pt 0 2pt!important;}
+    .sec{font-size:8pt!important;margin:10pt 0 4pt!important;}
+    .note,.field-note,.formula-hint{font-size:7.5pt!important;padding:0!important;background:transparent!important;color:#444!important;}
+    table{border:1px solid #bbb!important;border-radius:0!important;margin-top:6pt!important;}
+    th{font-size:8pt!important;padding:5pt 7pt!important;background:#0b1f3a!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    td{font-size:8pt!important;padding:5pt 7pt!important;}
+    tr:nth-child(even) td{background:#f5f5f5!important;}
+    details.proc{display:block!important;border:1pt solid #0b1f3a!important;border-radius:4pt!important;break-inside:avoid;background:#f9f9f6!important;}
+    details.proc>summary{display:none!important;}
+    details.proc::before{content:"📋 計算過程";display:block;font-weight:700;font-size:7.5pt;color:#0b1f3a;padding:5pt 8pt 3pt;border-bottom:1px solid #ccc;}
+    details.proc>pre{font-size:6.6pt!important;line-height:1.55!important;white-space:pre-wrap!important;padding:5pt 8pt 8pt!important;color:#1a1a1a!important;font-family:"Courier New",monospace!important;}
+    .proj-section{border:1.5pt solid #0b1f3a!important;border-radius:4pt!important;}
+    button.pro-btn,button.calc-btn{display:none!important;}
+    @page{margin:15mm 12mm;size:A4;}
+  }
+</style>
+</head>
+<body data-tool="prw">
+<header>
+  <a href="https://yj-chen0830.github.io/engineering-hub/" style="color:var(--gold2);font-size:12.5px;text-decoration:none;display:inline-block;margin-bottom:8px;">← 返回工程計算中心</a>
+  <h1>頂進反力與反力牆設計</h1>
+  <span>頂進阻力估算（刀口阻力＋管周摩擦）．反力牆被動土壓驗算</span>
+</header>
+<main>
+
+<div class="proj-section no-print" id="projSection">
+  <h3>📁 專案資訊（列印時帶入計算書封面）</h3>
+  <div class="proj-grid">
+    <div><label>工程名稱</label><input id="pj-name" placeholder="○○管線頂進工程"></div>
+    <div><label>工程地點</label><input id="pj-loc" placeholder="○○市○○區"></div>
+    <div><label>承造廠商</label><input id="pj-contractor" placeholder="○○營造股份有限公司"></div>
+    <div><label>文件編號</label><input id="pj-docno" placeholder="PRW-CAL-001"></div>
+    <div><label>計算者</label><input id="pj-calc" placeholder="姓名"></div>
+    <div><label>審核者</label><input id="pj-review" placeholder="姓名"></div>
+    <div><label>計算日期</label><input id="pj-date" type="date"></div>
+  </div>
+</div>
+
+<div class="tabs no-print">
+  <div class="tab active" id="tab-jf" onclick="switchTab('jf')">頂進阻力估算</div>
+  <div class="tab" id="tab-rw" onclick="switchTab('rw')">反力牆被動土壓驗算</div>
+</div>
+
+<div id="panel-jf" class="panel active">
+  <div class="mob-tabs">
+    <button class="mob-tab active" onclick="switchMobTab('jf-in',this)">📋 輸入參數</button>
+    <button class="mob-tab" id="mobTab-jf-r" onclick="switchMobTab('jf-r',this)">📊 計算結果</button>
+  </div>
+  <div class="grid">
+    <div class="card mob-active" data-tab="jf-in">
+      <h2>頂進阻力輸入</h2>
+      <div class="sec">幾何與覆土</div>
+      <div class="row2">
+        <div><label>管外徑 D (m)</label><input id="jf-D" type="number" value="2.0" step="0.1" min="0.1"></div>
+        <div><label>頂進長度 L (m)</label><input id="jf-L" type="number" value="60" step="1" min="1"></div>
+      </div>
+      <label>管頂覆土深度 H (m)</label>
+      <input id="jf-H" type="number" value="4.0" step="0.1" min="0.1">
+
+      <div class="sec">土壤參數</div>
+      <div class="row2">
+        <div><label>土壤單位重 γ (kN/m³)</label><input id="jf-gamma" type="number" value="18" step="0.5"></div>
+        <div><label>土壤摩擦角 φ (度)</label><input id="jf-phi" type="number" value="30" step="1"></div>
+      </div>
+      <div class="row2">
+        <div><label>土壤凝聚力 c (kPa)</label><input id="jf-c" type="number" value="0" step="1"></div>
+        <div><label>地表加載 q (kN/m²)</label><input id="jf-q" type="number" value="0" step="1"></div>
+      </div>
+      <div class="row2">
+        <div>
+          <label>管土介面摩擦角 δ (度)</label>
+          <input id="jf-delta" type="number" value="30" step="1">
+          <div class="formula-hint">預設隨 φ 帶入，可手動覆寫。</div>
+        </div>
+        <div>
+          <label>K0（靜止土壓係數）</label>
+          <input id="jf-K0" type="number" value="0.500" step="0.001">
+          <div class="formula-hint">預設 = 1 − sin(φ)，可手動覆寫。</div>
+        </div>
+      </div>
+      <label>正面阻抗壓力 P_face (kN/m²)</label>
+      <input id="jf-Pface" type="number" value="180" step="10" min="0">
+      <div class="field-note">依機型與地質狀況而異，常見範圍約 100–300 kN/m²，宜參考頂進機廠商資料或地質調查結果。</div>
+
+      <button class="calc-btn" onclick="calcPRWJacking()">計算頂進阻力</button>
+      <div class="note">本工具主設計值採 K0 法：σv,K0 = K0 × (γH + q)。Terzaghi 鬆動土壓僅作拱效應對照，因頂進施工擾動、覆土淺或鬆軟土層時拱效應未必穩定發揮，設計不宜過度倚賴折減。</div>
+    </div>
+    <div class="card" data-tab="jf-r">
+      <h2>頂進阻力結果</h2>
+      <div id="jf-result"><p style="color:#888">尚未計算</p></div>
+      <details class="proc details-note">
+        <summary>📌 設計說明與採用原則</summary>
+        <pre>1. 主設計值採 K0 法垂直土壓：σv,K0 = K0 × (γH + q)。
+2. Terzaghi 鬆動土壓僅供對照，不作為主要設計依據。
+3. 管周摩擦阻力以 K0 設計土壓計算，不採拱效應折減值。
+4. 刀口正面阻力 P_face 為使用者輸入之經驗值。</pre>
+      </details>
+      <button class="pro-btn no-print" onclick="openPro()">📄 產出計算書 PDF</button>
+    </div>
+  </div>
+</div>
+
+<div id="panel-rw" class="panel">
+  <div class="mob-tabs">
+    <button class="mob-tab active" onclick="switchMobTab('rw-in',this)">📋 輸入參數</button>
+    <button class="mob-tab" id="mobTab-rw-r" onclick="switchMobTab('rw-r',this)">📊 計算結果</button>
+  </div>
+  <div class="grid">
+    <div class="card mob-active" data-tab="rw-in">
+      <h2>反力牆被動土壓輸入</h2>
+      <div class="sec">反力牆幾何</div>
+      <div class="row2">
+        <div><label>反力牆高度 H_wall (m)</label><input id="rw-Hwall" type="number" value="4.0" step="0.1" min="0.1"></div>
+        <div><label>反力牆寬度 B_wall (m)</label><input id="rw-Bwall" type="number" value="6.0" step="0.1" min="0.1"></div>
+      </div>
+
+      <div class="sec">土壤參數</div>
+      <div class="row2">
+        <div><label>土壤單位重 γ (kN/m³)</label><input id="rw-gamma" type="number" value="18" step="0.5"></div>
+        <div><label>土壤摩擦角 φ (度)</label><input id="rw-phi" type="number" value="30" step="1"></div>
+      </div>
+      <label>土壤凝聚力 c (kPa)</label>
+      <input id="rw-c" type="number" value="0" step="1">
+
+      <div class="sec">外力</div>
+      <label>設計頂進反力 F_total (kN)</label>
+      <input id="rw-Ftotal" type="number" value="0" step="1" min="0">
+      <div class="field-note">可由 Tab 1 計算結果自動帶入；若需採其他設計值，可直接覆寫。</div>
+
+      <button class="calc-btn" onclick="calcPRWWall()">計算反力牆驗算</button>
+      <div class="note">採 Rankine 被動土壓理論。安全係數 FS = Pp / F_total，比照既有擋土牆工具之滑動安全係數慣例，取 FS ≥ 1.5 為 OK。</div>
+    </div>
+    <div class="card" data-tab="rw-r">
+      <h2>反力牆驗算結果</h2>
+      <div id="rw-result"><p style="color:#888">尚未計算</p></div>
+      <details class="proc details-note">
+        <summary>📌 注意事項</summary>
+        <pre>1. 被動土壓力發揮需要牆體有足夠位移量，本工具未檢討其發揮度可靠性，正式設計應由大地工程師評估。
+2. 本工具僅檢核反力牆對頂進力的被動土壓抵抗，未檢討反力牆本身之結構設計（版厚、鋼筋、剪力、沖剪）。
+3. 刀口正面阻力 P_face 為使用者輸入之經驗值，非本工具理論計算項目。</pre>
+      </details>
+      <button class="pro-btn no-print" onclick="openPro()">📄 產出計算書 PDF</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+function switchTab(id){
+  ['jf','rw'].forEach(function(t){
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
+    document.getElementById('panel-'+t).classList.toggle('active',t===id);
+  });
+  if(id==='rw'){carryFtotalToWall();}
+}
+function switchMobTab(name,btn){
+  btn.parentElement.querySelectorAll('.mob-tab').forEach(function(t){t.classList.remove('active');});
+  btn.classList.add('active');
+  btn.parentElement.nextElementSibling.querySelectorAll('.card').forEach(function(c){
+    c.classList.toggle('mob-active',c.dataset.tab===name);
+  });
+}
+function openPro(){JRH.checkEmail(function(){jrhPrint('頂進反力與反力牆設計計算書');});}
+function v(id){return parseFloat(document.getElementById(id).value)||0;}
+function setVal(id,val){document.getElementById(id).value=val;}
+function f1(x){return x.toFixed(1);}
+function f2(x){return x.toFixed(2);}
+function f3(x){return x.toFixed(3);}
+function deg2rad(d){return d*Math.PI/180;}
+function tanDeg(d){return Math.tan(deg2rad(d));}
+function cotDeg(d){return 1/Math.tan(deg2rad(d));}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+var jfDeltaAuto = true;
+var jfK0Auto = true;
+var lastJacking = null;
+
+function syncJackingDefaults(){
+  var phi = v('jf-phi');
+  if(jfDeltaAuto){setVal('jf-delta',f1(phi));}
+  if(jfK0Auto){setVal('jf-K0',f3(1-Math.sin(deg2rad(phi))));}
+}
+document.getElementById('jf-phi').addEventListener('input',syncJackingDefaults);
+document.getElementById('jf-delta').addEventListener('input',function(){jfDeltaAuto=false;});
+document.getElementById('jf-K0').addEventListener('input',function(){jfK0Auto=false;});
+syncJackingDefaults();
+
+function makeRow(label,value,proc){
+  return '<tr><td>'+label+'</td><td class="value">'+value+'</td><td class="proc-cell"><details class="proc"><summary>📋 展開</summary><pre>'+esc(proc)+'</pre></details></td></tr>';
+}
+
+function calcPRWJacking(){
+  var D=v('jf-D'), L=v('jf-L'), H=v('jf-H'), gamma=v('jf-gamma'), phi=v('jf-phi');
+  var c=v('jf-c'), q=v('jf-q'), delta=v('jf-delta'), K0=v('jf-K0'), Pface=v('jf-Pface');
+  var errors=[];
+  if(D<=0)errors.push('管外徑 D 須大於 0');
+  if(L<=0)errors.push('頂進長度 L 須大於 0');
+  if(H<=0)errors.push('覆土深度 H 須大於 0');
+  if(gamma<=0)errors.push('土壤單位重 γ 須大於 0');
+  if(phi<=0||phi>=89)errors.push('土壤摩擦角 φ 建議介於 0 與 89 度之間');
+  if(delta<0||delta>=89)errors.push('管土介面摩擦角 δ 建議介於 0 與 89 度之間');
+  if(K0<=0)errors.push('K0 須大於 0');
+  if(errors.length){
+    document.getElementById('jf-result').innerHTML='<div class="note">'+errors.join('；')+'</div>';
+    return;
+  }
+
+  var sigmaVK0 = K0*(gamma*H + q);
+  var Kt = 1.0;
+  var tanPhi = tanDeg(phi);
+  var B1 = (D/2)*cotDeg(45 + phi/2);
+  var decay = Math.exp(-Kt*tanPhi*H/B1);
+  var sigmaVT = (B1*(gamma - c/B1)/(Kt*tanPhi))*(1-decay) + q*decay;
+  var fSkin = sigmaVK0*tanDeg(delta);
+  var Fskin = fSkin*Math.PI*D*L;
+  var Aface = Math.PI/4*D*D;
+  var Fface = Pface*Aface;
+  var Ftotal = Fface + Fskin;
+
+  lastJacking = {Ftotal:Ftotal};
+  carryFtotalToWall();
+
+  var terzaghiNote = '拱效應對照值（僅供參考，不作為設計依據）';
+  var res = '';
+  res += '<table><tr><th>項目</th><th>數值</th><th>計算過程</th></tr>';
+  res += makeRow(
+    'K0 法垂直土壓 σv,K0',
+    f2(sigmaVK0)+' kN/m²',
+    'σv,K0 = K0 × (γH + q)\n'
+    +'      = '+f3(K0)+' × ('+f2(gamma)+' × '+f2(H)+' + '+f2(q)+')\n'
+    +'      = '+f3(K0)+' × '+f2(gamma*H + q)+'\n'
+    +'      = '+f2(sigmaVK0)+' kN/m²\n'
+    +'本工具主設計值採此保守值。'
+  );
+  res += makeRow(
+    terzaghiNote,
+    f2(sigmaVT)+' kN/m²',
+    'B1 = (D/2) × cot(45° + φ/2)\n'
+    +'   = ('+f2(D)+'/2) × cot('+(45+phi/2).toFixed(2)+'°)\n'
+    +'   = '+f2(D/2)+' × '+f3(cotDeg(45 + phi/2))+'\n'
+    +'   = '+f3(B1)+' m\n\n'
+    +'K_t = 1.0（Terzaghi 公式中的固定常數，非 K0）\n'
+    +'tanφ = tan('+f2(phi)+'°) = '+f3(tanPhi)+'\n'
+    +'exp[-K_t tanφ H / B1] = exp[-1.0 × '+f3(tanPhi)+' × '+f2(H)+' / '+f3(B1)+']\n'
+    +'                      = '+f6(decay)+'\n\n'
+    +'σv,Terzaghi = [B1×(γ−c/B1)/(K_t tanφ)] × [1−exp(−K_t tanφ H/B1)] + q×exp(−K_t tanφ H/B1)\n'
+    +'            = ['+f3(B1)+' × ('+f2(gamma)+' − '+f2(c)+'/'+f3(B1)+') / (1.0 × '+f3(tanPhi)+')] × (1 − '+f6(decay)+') + '+f2(q)+' × '+f6(decay)+'\n'
+    +'            = '+f2(sigmaVT)+' kN/m²\n\n'
+    +'此值僅供拱效應對照；設計不採用此折減值。'
+  );
+  res += makeRow(
+    '管周單位摩擦力 f_skin',
+    f2(fSkin)+' kN/m²',
+    'f_skin = σv,K0 × tan(δ)\n'
+    +'       = '+f2(sigmaVK0)+' × tan('+f2(delta)+'°)\n'
+    +'       = '+f2(sigmaVK0)+' × '+f3(tanDeg(delta))+'\n'
+    +'       = '+f2(fSkin)+' kN/m²'
+  );
+  res += makeRow(
+    '管周總摩擦阻力 F_skin',
+    f2(Fskin)+' kN',
+    'F_skin = f_skin × π × D × L\n'
+    +'       = '+f2(fSkin)+' × π × '+f2(D)+' × '+f2(L)+'\n'
+    +'       = '+f2(Fskin)+' kN'
+  );
+  res += makeRow(
+    '刀口正面阻力 F_face',
+    f2(Fface)+' kN',
+    'A_face = π/4 × D² = π/4 × '+f2(D)+'² = '+f2(Aface)+' m²\n'
+    +'F_face = P_face × A_face\n'
+    +'       = '+f2(Pface)+' × '+f2(Aface)+'\n'
+    +'       = '+f2(Fface)+' kN'
+  );
+  res += makeRow(
+    '頂進總反力 F_total（設計值）',
+    f2(Ftotal)+' kN',
+    'F_total = F_face + F_skin\n'
+    +'        = '+f2(Fface)+' + '+f2(Fskin)+'\n'
+    +'        = '+f2(Ftotal)+' kN\n'
+    +'此值可帶入 Tab 2 作反力牆被動土壓驗算。'
+  );
+  res += '</table>';
+  document.getElementById('jf-result').innerHTML = res;
+
+  if(window.innerWidth<768){
+    var b=document.getElementById('mobTab-jf-r');
+    if(b)switchMobTab('jf-r',b);
+  }
+}
+
+function carryFtotalToWall(){
+  if(lastJacking && isFinite(lastJacking.Ftotal)){setVal('rw-Ftotal',f2(lastJacking.Ftotal));}
+}
+
+function calcPRWWall(){
+  var Hwall=v('rw-Hwall'), Bwall=v('rw-Bwall'), gamma=v('rw-gamma'), phi=v('rw-phi'), c=v('rw-c'), Ftotal=v('rw-Ftotal');
+  var errors=[];
+  if(Hwall<=0)errors.push('反力牆高度 H_wall 須大於 0');
+  if(Bwall<=0)errors.push('反力牆寬度 B_wall 須大於 0');
+  if(gamma<=0)errors.push('土壤單位重 γ 須大於 0');
+  if(phi<0||phi>=89)errors.push('土壤摩擦角 φ 建議介於 0 與 89 度之間');
+  if(Ftotal<=0)errors.push('設計頂進反力 F_total 須大於 0');
+  if(errors.length){
+    document.getElementById('rw-result').innerHTML='<div class="note">'+errors.join('；')+'</div>';
+    return;
+  }
+
+  var Kp = Math.pow(tanDeg(45 + phi/2),2);
+  var PpGamma = 0.5*Kp*gamma*Hwall*Hwall*Bwall;
+  var PpC = 2*c*Math.sqrt(Kp)*Hwall*Bwall;
+  var Pp = PpGamma + PpC;
+  var FSslide = Pp/Ftotal;
+  var slideOK = FSslide >= 1.5;
+
+  var res = '';
+  res += '<table><tr><th>項目</th><th>數值</th><th>計算過程</th></tr>';
+  res += makeRow(
+    'Rankine 被動土壓係數 Kp',
+    f3(Kp),
+    'Kp = tan²(45° + φ/2)\n'
+    +'   = tan²(45° + '+f2(phi/2)+'°)\n'
+    +'   = tan²('+(45+phi/2).toFixed(2)+'°)\n'
+    +'   = '+f3(Kp)
+  );
+  res += makeRow(
+    '被動土壓力 Pp',
+    f2(Pp)+' kN',
+    'Pp = 0.5 × Kp × γ × H_wall² × B_wall + 2 × c × √Kp × H_wall × B_wall\n'
+    +'   = 0.5 × '+f3(Kp)+' × '+f2(gamma)+' × '+f2(Hwall)+'² × '+f2(Bwall)
+    +' + 2 × '+f2(c)+' × '+f3(Math.sqrt(Kp))+' × '+f2(Hwall)+' × '+f2(Bwall)+'\n'
+    +'   = '+f2(PpGamma)+' + '+f2(PpC)+'\n'
+    +'   = '+f2(Pp)+' kN'
+  );
+  res += makeRow(
+    '安全係數 FSslide（需≥1.5）',
+    f2(FSslide)+' '+(slideOK?'<span class="ok">OK</span>':'<span class="ng">NG</span>'),
+    'FS = Pp / F_total\n'
+    +'   = '+f2(Pp)+' / '+f2(Ftotal)+'\n'
+    +'   = '+f2(FSslide)+'\n'
+    +(slideOK?'判定：≥ 1.5，OK':'判定：< 1.5，NG')
+  );
+  res += '</table>';
+  document.getElementById('rw-result').innerHTML = res;
+
+  if(window.innerWidth<768){
+    var b=document.getElementById('mobTab-rw-r');
+    if(b)switchMobTab('rw-r',b);
+  }
+}
+
+function f6(x){return x.toFixed(6);}
+</script>
+<script>
+window.jrhDocMeta = {
+  doc: '頂進反力與反力牆設計計算書',
+  codes: [
+    'Terzaghi, K. (1943), Theoretical Soil Mechanics — 鬆動土壓（拱效應）理論',
+    'Rankine (1857) 被動土壓理論'
+  ],
+  notes: [
+    '被動土壓力發揮需要牆體有足夠位移量，本工具未檢討此發揮度可靠性，正式設計應由大地工程師評估。',
+    '本工具僅檢核反力牆對頂進力的被動土壓抵抗，未檢討反力牆本身之結構設計（版厚、鋼筋、剪力、沖剪）。',
+    '本工具僅供初步設計參考，正式設計應由大地及結構工程師複核。'
+  ]
+};
+</script>
+</body>
+</html>
